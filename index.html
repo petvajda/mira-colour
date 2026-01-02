@@ -242,16 +242,8 @@
         <!-- Selection Screen -->
         <div id="selectionScreen">
             <h1>🎨 Choose Your Picture!</h1>
-            <div class="imageGrid">
-                <div class="imageCard" onclick="startColoring(0)">
-                    <img id="img1" alt="Cat 1">
-                </div>
-                <div class="imageCard" onclick="startColoring(1)">
-                    <img id="img2" alt="Dog">
-                </div>
-                <div class="imageCard" onclick="startColoring(2)">
-                    <img id="img3" alt="Cat 2">
-                </div>
+            <div class="imageGrid" id="imageGridContainer">
+                <!-- Images will be loaded dynamically -->
             </div>
         </div>
 
@@ -301,8 +293,15 @@
         </div>
     </div>
 
-    <script src="image_data.js"></script>
     <script>
+        // Configuration - GitHub repository images
+        const GITHUB_REPO = 'https://raw.githubusercontent.com/petvajda/mira-colour/main/images/';
+        const IMAGES = [
+            { file: 'kozi.png', title: 'Kozi' },
+            { file: 'lole.png', title: 'Lole' },
+            { file: 'pacsi.png', title: 'Pacsi' }
+        ];
+
         // App State
         const state = {
             currentTool: 'fill',
@@ -327,16 +326,39 @@
         });
 
         function loadImages() {
-            const imageData = [CAT1_IMAGE, DOG_IMAGE, CAT2_IMAGE];
-            const imgElements = ['img1', 'img2', 'img3'];
+            const gridContainer = document.getElementById('imageGridContainer');
             
-            imageData.forEach((data, index) => {
+            IMAGES.forEach((imageData, index) => {
                 const img = new Image();
+                img.crossOrigin = 'anonymous'; // Enable CORS
                 img.onload = () => {
                     state.images[index] = img;
-                    document.getElementById(imgElements[index]).src = data;
+                    
+                    // Create image card
+                    const card = document.createElement('div');
+                    card.className = 'imageCard';
+                    card.onclick = () => startColoring(index);
+                    
+                    const cardImg = document.createElement('img');
+                    cardImg.src = img.src;
+                    cardImg.alt = imageData.title;
+                    card.appendChild(cardImg);
+                    
+                    // Add title
+                    const title = document.createElement('h2');
+                    title.textContent = imageData.title;
+                    title.style.textAlign = 'center';
+                    title.style.marginTop = '10px';
+                    title.style.color = '#667eea';
+                    title.style.fontSize = '1.5rem';
+                    card.appendChild(title);
+                    
+                    gridContainer.appendChild(card);
                 };
-                img.src = data;
+                img.onerror = () => {
+                    console.error(`Failed to load image: ${imageData.file}`);
+                };
+                img.src = GITHUB_REPO + imageData.file;
             });
         }
 
@@ -545,3 +567,4 @@
         });
     </script>
 </body>
+</html>
